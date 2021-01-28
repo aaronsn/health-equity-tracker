@@ -18,17 +18,21 @@ class CovidProvider extends VariableProvider {
   private acsProvider: AcsPopulationProvider;
 
   constructor(acsProvider: AcsPopulationProvider) {
-    super("covid_provider", [
-      "covid_cases",
-      "covid_deaths",
-      "covid_hosp",
-      "covid_cases_pct_of_geo",
-      "covid_deaths_pct_of_geo",
-      "covid_hosp_pct_of_geo",
-      "covid_deaths_per_100k",
-      "covid_cases_per_100k",
-      "covid_hosp_per_100k",
-    ]);
+    super(
+      "covid_provider",
+      [
+        "covid_cases",
+        "covid_deaths",
+        "covid_hosp",
+        "covid_cases_pct_of_geo",
+        "covid_deaths_pct_of_geo",
+        "covid_hosp_pct_of_geo",
+        "covid_deaths_per_100k",
+        "covid_cases_per_100k",
+        "covid_hosp_per_100k",
+      ],
+      ["population", "population_pct"]
+    );
     this.acsProvider = acsProvider;
   }
 

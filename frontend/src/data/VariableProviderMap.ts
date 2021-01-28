@@ -49,8 +49,26 @@ export default class VariableProviderMap {
    * variables.
    */
   getUniqueProviders(metricIds: MetricId[]): VariableProvider[] {
+    // First, find the authoritative providers for each metric and dedupe them
+    // in case multiple metrics are provided by the same provider.
     const providerIds = metricIds.map((id) => this.metricsToProviderIds[id]);
     const dedupedIds = Array.from(new Set(providerIds));
-    return dedupedIds.map((id) => this.providersById[id]);
+    const providers = dedupedIds.map((id) => this.providersById[id]);
+
+    if (providers.length === 0) {
+      throw new Error("No provider found for the requested metrics");
+    }
+    if (providers.length > 2) {
+      // We don't support this because it results in non-deterministic outcomes
+      // if different providers have the same secondary metrics.
+      throw new Error(
+        "Joining data from more than two providers is not supported"
+      );
+    }
+
+    // Now, Check if one provider can handle the query entirely. If so, use
+    // that. Otherwise, use all of them.
+    const provider = providers.find((p) => p.canHandleAllMetrics(metricIds));
+    return provider ? [provider] : providers;
   }
 }

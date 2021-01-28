@@ -202,6 +202,7 @@ class MetricQueryCache extends ResourceCache<MetricQuery, MetricQueryResponse> {
     query: MetricQuery
   ): Promise<MetricQueryResponse> {
     const providers = this.providerMap.getUniqueProviders(query.metricIds);
+    console.log("metrics: ", query.metricIds, "providers: ", providers);
 
     // Yield thread so the UI can respond. This prevents long calculations
     // from causing UI elements to look laggy.
@@ -232,12 +233,7 @@ class MetricQueryCache extends ResourceCache<MetricQuery, MetricQueryResponse> {
     );
 
     const joined = dataframes.reduce((prev, next) => {
-      return joinOnCols(
-        prev,
-        next,
-        query.breakdowns.getJoinColumns(),
-        query.joinType
-      );
+      return joinOnCols(prev, next, query.breakdowns.getJoinColumns(), "outer");
     });
 
     const consumedDatasetIds = queryResponses.reduce(

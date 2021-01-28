@@ -11,11 +11,28 @@ import { Fips } from "../../utils/madlib/Fips";
 
 abstract class VariableProvider {
   readonly providerId: ProviderId;
-  readonly providesMetrics: MetricId[];
+  readonly providesMetrics: Readonly<MetricId[]>;
+  /**
+   * Metrics that are provided by this provider but are not "owned" by it,
+   * meaning that another provider is used if these metrics are requested by
+   * themselves.
+   */
+  readonly secondaryMetrics: Readonly<MetricId[]>;
+  readonly allMetrics: Readonly<MetricId[]>;
 
-  constructor(providerId: ProviderId, providesMetrics: MetricId[]) {
+  constructor(
+    providerId: ProviderId,
+    providesMetrics: MetricId[],
+    secondaryMetrics?: MetricId[]
+  ) {
     this.providerId = providerId;
     this.providesMetrics = providesMetrics;
+    this.secondaryMetrics = secondaryMetrics || [];
+    this.allMetrics = this.providesMetrics.concat(this.secondaryMetrics);
+  }
+
+  canHandleAllMetrics(metricIds: MetricId[]): boolean {
+    return metricIds.every((id) => this.allMetrics.includes(id));
   }
 
   async getData(metricQuery: MetricQuery): Promise<MetricQueryResponse> {
